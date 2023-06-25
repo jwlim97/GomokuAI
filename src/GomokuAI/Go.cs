@@ -22,7 +22,7 @@ public class Go
             var (row, column) = GetMove();
             SetMove(row, column);
 
-            if (!IsGameOver()) continue;
+            if (!IsGameOver(row, column)) continue;
             isGameFinished = true;
             PrintBoard();
             Console.WriteLine($"Player {_currentPlayer} wins!");
@@ -83,7 +83,7 @@ public class Go
     {
         _board.SetPosition(row, column, _currentPlayer);
 
-        if (!IsGameOver())
+        if (!IsGameOver(row, column))
         {
             SwapPlayer();
         }
@@ -93,8 +93,9 @@ public class Go
     {
         _currentPlayer = _currentPlayer == 1 ? 2 : 1;
     }
-    
-    private bool IsGameOver()
+
+    // Naive approach that scans entire board
+    private bool IsGameOverNaive()
     {
         var winCount = 5;
         
@@ -180,6 +181,53 @@ public class Go
 
         return false;
     }
+
+    private bool IsGameOver(int row, int column)
+    {
+        var winCount = 5;
+
+        var directions = new (int rowDirection, int columnDirection)[]
+        {
+            (1, 0), // Horizontal 
+            (0, 1), // Vertical
+            (1, 1), // Left to right
+            (1, -1) // Right to left
+        };
+
+        foreach (var direction in directions)
+        {
+            var count = 0;
+
+            for (var i = -winCount + 1; i < winCount; i++)
+            {
+                var newRow = row + i * direction.rowDirection;
+                var newColumn = column + i * direction.columnDirection;
+
+                if (newRow < 1 || newRow > _board.Size || newColumn < 1 || newColumn > _board.Size)
+                {
+                    count = 0;
+                    continue;
+                }
+
+                if (_board.GetPosition(newRow, newColumn) == _currentPlayer)
+                {
+                    count++;
+
+                    if (count == winCount)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    count = 0;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private void PrintBoard()
     {
