@@ -1,10 +1,15 @@
-﻿namespace GomokuAI;
+﻿using GomokuAI.Engine;
 
-public class Program
+namespace GomokuAI;
+
+class Program
 {
     public static void Main(string[] args)
     {
-        var go = new Go(15);
-        go.Play();
+        var configuration = new Configuration();
+        var (player1Type, player2Type) = configuration.GetPlayerTypes();
+
+        var gomoku = new Gomoku(player1Type, player2Type);
+        gomoku.Play();
     }
 }
