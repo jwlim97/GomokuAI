@@ -13,7 +13,7 @@ public class AIPlayerMedium : BaseAIPlayer
     private int _playerNumber;
     private Board _board;
     private Gomoku _gomoku;
-    private readonly List<(int row, int column)> _activePoints;
+    private List<(int row, int column)> _activePoints;
 
     public AIPlayerMedium(int playerNumber, Board board) : base(playerNumber, board)
     {
@@ -26,8 +26,7 @@ public class AIPlayerMedium : BaseAIPlayer
     {
         _gomoku = gomoku;
         UpdateActivePoints();
-
-        // If the board is empty (i.e., no active points), return the center point
+        
         if (_activePoints.Count == 0)
         {
             return (Board.Size / 2, Board.Size / 2);
@@ -43,6 +42,8 @@ public class AIPlayerMedium : BaseAIPlayer
         var bestScore = Min;
         var bestRow = -1;
         var bestColumn = -1;
+
+        _activePoints = OrderMoves(_activePoints);
 
         foreach (var (newRow, newColumn) in _activePoints)
         {
@@ -217,5 +218,17 @@ public class AIPlayerMedium : BaseAIPlayer
                 }
             }
         }
+    }
+    
+    // Using Euclidean distance to help calculate which moves should be done
+    private static double DistanceToCenter((int row, int column) move)
+    {
+        var center = Board.Size / 2.0;
+        return Math.Sqrt(Math.Pow(move.row - center, 2) + Math.Pow(move.column - center, 2));
+    }
+
+    private static List<(int row, int column)> OrderMoves(IEnumerable<(int row, int column)> moves)
+    {
+        return moves.OrderBy(DistanceToCenter).ToList();
     }
 }
