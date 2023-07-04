@@ -1,5 +1,6 @@
 ﻿using GomokuAI.Engine;
 using GomokuAI.Interfaces;
+using System.Data.Common;
 
 namespace GomokuAI.Players
 {
