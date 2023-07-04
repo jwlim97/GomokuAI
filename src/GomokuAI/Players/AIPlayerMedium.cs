@@ -7,56 +7,59 @@ public class AIPlayerMedium : BaseAIPlayer
 {
     private const int Max = int.MaxValue;
     private const int Min = int.MinValue;
-
     private const int MaxDepth = 3;
-    
+    private const int SearchDistance = 2;
+
     private int _playerNumber;
     private Board _board;
     private Gomoku _gomoku;
+    private readonly List<(int row, int column)> _activePoints;
 
     public AIPlayerMedium(int playerNumber, Board board) : base(playerNumber, board)
     {
         this._playerNumber = playerNumber;
         this._board = board;
+        this._activePoints = new List<(int row, int column)>();
     }
 
     public override (int row, int column) GetMove(Gomoku gomoku)
     {
         _gomoku = gomoku;
+        UpdateActivePoints();
+
+        // If the board is empty (i.e., no active points), return the center point
+        if (_activePoints.Count == 0)
+        {
+            return (Board.Size / 2, Board.Size / 2);
+        }
+
         var (row, column) = CheckOpponentWinningMove();
-        
-        if (row != 0 && column != 0)
+
+        if (row != 0 || column != 0)
         {
             return (row, column);
         }
-        
+
         var bestScore = Min;
         var bestRow = -1;
         var bestColumn = -1;
-        
-        for (var r = 1; r <= Board.Size; r++)
-        {
-            for (var c = 1; c <= Board.Size; c++)
-            {
-                if (_board.GetPosition(r, c) != 0) continue;
-                
-                _board.SetPosition(r, c, _playerNumber);
-                
-                var moveValue = Minimax(MaxDepth, r, c, false, Min, Max);
-                
-                Console.WriteLine($"Considering move ({r}, {c}) with score {moveValue}...");
 
-                _board.SetPosition(r, c, 0);
-                
-                if (moveValue <= bestScore) continue;
-                bestRow = r;
-                bestColumn = c;
-                bestScore = moveValue;
-            }
+        foreach (var (newRow, newColumn) in _activePoints)
+        {
+            if (_board.GetPosition(newRow, newColumn) != 0) continue;
+
+            _board.SetPosition(newRow, newColumn, _playerNumber);
+
+            var moveValue = Minimax(MaxDepth, newRow, newColumn, false, Min, Max);
+
+            _board.SetPosition(newRow, newColumn, 0);
+
+            if (moveValue <= bestScore) continue;
+            bestRow = newRow;
+            bestColumn = newColumn;
+            bestScore = moveValue;
         }
-        
-        Console.WriteLine($"Best move: ({bestRow}, {bestColumn}) with score {bestScore}");
-        
+
         if (bestRow == -1 || bestColumn == -1)
             throw new Exception("No valid moves found!");
 
@@ -74,17 +77,17 @@ public class AIPlayerMedium : BaseAIPlayer
         {
             var best = Min;
             
-            for (var r = 1; r <= Board.Size; r++)
+            for (var newRow = 1; newRow <= Board.Size; newRow++)
             {
-                for (var c = 1; c <= Board.Size; c++)
+                for (var newColumn = 1; newColumn <= Board.Size; newColumn++)
                 {
-                    if (_board.GetPosition(r, c) != 0) continue;
+                    if (_board.GetPosition(newRow, newColumn) != 0) continue;
                     
-                    _board.SetPosition(r, c, _playerNumber);
+                    _board.SetPosition(newRow, newColumn, _playerNumber);
                     
-                    best = Math.Max(best, Minimax(depth - 1, r, c, false, alpha, beta));
+                    best = Math.Max(best, Minimax(depth - 1, newRow, newColumn, false, alpha, beta));
                     
-                    _board.SetPosition(r, c, 0);
+                    _board.SetPosition(newRow, newColumn, 0);
                     
                     alpha = Math.Max(alpha, best);
                     if (beta <= alpha)
@@ -99,17 +102,17 @@ public class AIPlayerMedium : BaseAIPlayer
         {
             var best = Max;
             
-            for (var r = 1; r <= Board.Size; r++)
+            for (var newRow = 1; newRow <= Board.Size; newRow++)
             {
-                for (var c = 1; c <= Board.Size; c++)
+                for (var newColumn = 1; newColumn <= Board.Size; newColumn++)
                 {
-                    if (_board.GetPosition(r, c) != 0) continue;
+                    if (_board.GetPosition(newRow, newColumn) != 0) continue;
                     
-                    _board.SetPosition(r, c, 3 - _playerNumber); 
+                    _board.SetPosition(newRow, newColumn, 3 - _playerNumber); 
                     
-                    best = Math.Min(best, Minimax(depth - 1, r, c, true, alpha, beta));
+                    best = Math.Min(best, Minimax(depth - 1, newRow, newColumn, true, alpha, beta));
                     
-                    _board.SetPosition(r, c, 0);
+                    _board.SetPosition(newRow, newColumn, 0);
                     
                     beta = Math.Min(beta, best);
                     if (alpha >= beta)
@@ -126,13 +129,13 @@ public class AIPlayerMedium : BaseAIPlayer
     {
         var score = 0;
         
-        for (var r = 1; r <= Board.Size; r++)
+        for (var row = 1; row <= Board.Size; row++)
         {
-            for (var c = 1; c <= Board.Size; c++)
+            for (var column = 1; column <= Board.Size; column++)
             {
-                if (_board.GetPosition(r, c) == 0) continue;
+                if (_board.GetPosition(row, column) == 0) continue;
                 
-                score += (_board.GetPosition(r, c) == _playerNumber) ? 1 : -1;
+                score += (_board.GetPosition(row, column) == _playerNumber) ? 1 : -1;
             }
         }
 
@@ -188,5 +191,31 @@ public class AIPlayerMedium : BaseAIPlayer
         }
         
         return (0, 0);
+    }
+    
+    private void UpdateActivePoints()
+    {
+        _activePoints.Clear();
+        for (var row = 1; row <= Board.Size; row++)
+        {
+            for (var column = 1; column <= Board.Size; column++)
+            {
+                if (_board.GetPosition(row, column) == 0) continue;
+
+                for (var rowDistance = -SearchDistance; rowDistance <= SearchDistance; rowDistance++)
+                {
+                    for (var columnDistance = -SearchDistance; columnDistance <= SearchDistance; columnDistance++)
+                    {
+                        var newRow = row + rowDistance;
+                        var newColumn = column + columnDistance;
+                        
+                        if (newRow >= 1 && newRow <= Board.Size && newColumn >= 1 && newColumn <= Board.Size && _board.GetPosition(newRow, newColumn) == 0)
+                        {
+                            _activePoints.Add((newRow, newColumn));
+                        }
+                    }
+                }
+            }
+        }
     }
 }

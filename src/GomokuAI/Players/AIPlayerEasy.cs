@@ -5,7 +5,8 @@ namespace GomokuAI.Players;
 
 public class AIPlayerEasy : BaseAIPlayer
 {
-    // Values used for initial alpha and beta in Alpha-Beta Pruning
+    // Initial values of
+    // Alpha and Beta
     static int MAX = int.MaxValue;
     static int MIN = int.MinValue;
 
@@ -19,13 +20,15 @@ public class AIPlayerEasy : BaseAIPlayer
         this._board = board;
     }
 
-    // MinMax function with Alpha-Beta pruning.
+    // Returns optimal value for
+    // current player (Initially called
+    // for root and maximizer)
     private int MinMax(int depth, int row, int column, bool maximizingPlayer, int alpha, int beta)
     {
-        // Check if we reached the desired depth or if the game is over
+        // Terminating condition. i.e
+        // leaf node is reached
         if (depth == 0 || _gomoku.IsGameOver(row, column))
         {
-            // Evaluate board state
             return EvaluateBoard();
         }
 
@@ -33,21 +36,21 @@ public class AIPlayerEasy : BaseAIPlayer
         {
             var best = MIN;
 
-            // Iterate over all possible moves
-            for (var r = 1; r <= Board.Size; r++)
+            // Recur for left and
+            // right children
+            for (var newRow = 1; newRow <= Board.Size; newRow++)
             {
-                for (var c = 1; c <= Board.Size; c++)
+                for (var newColumn = 1; newColumn <= Board.Size; newColumn++)
                 {
-                    // If the spot is empty
-                    if (_board.GetPosition(r, c) == 0)
+                    if (_board.GetPosition(newRow, newColumn) == 0)
                     {
-                        _board.SetPosition(r, c, _playerNumber); // Try the move
+                        _board.SetPosition(newRow, newColumn, _playerNumber);
 
-                        // Call minimax recursively and choose the maximum value
-                        best = Math.Max(best, MinMax(depth - 1, r, c, false, alpha, beta));
+                        // Call minmax recursively and choose the maximum value
+                        best = Math.Max(best, MinMax(depth - 1, newRow, newColumn, false, alpha, beta));
 
                         // Undo the move
-                        _board.SetPosition(r, c, 0);
+                        _board.SetPosition(newRow, newColumn, 0);
 
                         // Alpha Beta Pruning
                         alpha = Math.Max(alpha, best);
@@ -63,22 +66,20 @@ public class AIPlayerEasy : BaseAIPlayer
         else
         {
             var best = MAX;
-
-            // Iterate over all possible moves
-            for (var r = 1; r <= Board.Size; r++)
+            
+            for (var newRow = 1; newRow <= Board.Size; newRow++)
             {
-                for (var c = 1; c <= Board.Size; c++)
+                for (var newColumn = 1; newColumn <= Board.Size; newColumn++)
                 {
-                    // If the spot is empty
-                    if (_board.GetPosition(r, c) == 0)
+                    if (_board.GetPosition(newRow, newColumn) == 0)
                     {
-                        _board.SetPosition(r, c, 3 - _playerNumber); // Try the move
+                        _board.SetPosition(newRow, newColumn, 3 - _playerNumber);
 
-                        // Call minimax recursively and choose the minimum value
-                        best = Math.Min(best, MinMax(depth - 1, r, c, true, alpha, beta));
+                        // Call minmax recursively and choose the minimum value
+                        best = Math.Min(best, MinMax(depth - 1, newRow, newColumn, true, alpha, beta));
 
                         // Undo the move
-                        _board.SetPosition(r, c, 0);
+                        _board.SetPosition(newRow, newColumn, 0);
 
                         // Alpha Beta Pruning
                         beta = Math.Min(beta, best);
@@ -101,27 +102,27 @@ public class AIPlayerEasy : BaseAIPlayer
 
         // Traverse all cells, evaluate minimax function for all empty cells.
         // Return the cell with optimal value.
-        for (var r = 1; r <= Board.Size; r++)
+        for (var row = 1; row <= Board.Size; row++)
         {
-            for (var c = 1; c <= Board.Size; c++)
+            for (var column = 1; column <= Board.Size; column++)
             {
                 // Check cell is empty
-                if (_board.GetPosition(r, c) == 0)
+                if (_board.GetPosition(row, column) == 0)
                 {
                     // Try the move
-                    _board.SetPosition(r, c, _playerNumber);
+                    _board.SetPosition(row, column, _playerNumber);
 
                     // Compute evaluation function for this move.
-                    var moveValue = MinMax(0, r, c, false, MIN, MAX);
+                    var moveValue = MinMax(0, row, column, false, MIN, MAX);
 
                     // Undo the move
-                    _board.SetPosition(r, c, 0);
+                    _board.SetPosition(row, column, 0);
 
                     // Update bestValue if the newly computed moveValue is better.
                     if (moveValue > bestValue)
                     {
-                        bestRow = r;
-                        bestColumn = c;
+                        bestRow = row;
+                        bestColumn = column;
                         bestValue = moveValue;
                     }
                 }
