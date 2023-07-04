@@ -1,20 +1,19 @@
 ﻿using GomokuAI.Engine;
-using GomokuAI.Players;
 
 namespace GomokuAI.Interfaces;
 
 public abstract class BaseAIPlayer : IPlayer
 {
     private readonly int _playerNumber;
-    protected readonly Board _board;
+    protected readonly Board Board;
 
     protected BaseAIPlayer(int playerNumber, Board board)
     {
         _playerNumber = playerNumber;
-        _board = board;
+        Board = board;
     }
 
-    public abstract (int row, int column) GetMove();
+    public abstract (int row, int column) GetMove(Gomoku gomoku);
 
     public void PrintMove(int row, int column)
     {
