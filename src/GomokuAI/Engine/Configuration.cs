@@ -43,11 +43,11 @@ public class Configuration
 
     private int GetAIDifficulty()
     {
-        Console.Write("Choose difficulty level for AI: Easy (1), Medium (2), Hard (3): ");
+        Console.Write("Choose difficulty level for AI: Very Easy (1), Easy (2), Medium (3), Hard (4): ");
         int difficulty;
-        while (!int.TryParse(Console.ReadLine(), out difficulty) || difficulty < 1 || difficulty > 3)
+        while (!int.TryParse(Console.ReadLine(), out difficulty) || difficulty < 1 || difficulty > 4)
         {
-            Console.Write("Invalid input. Please enter 1, 2, or 3: ");
+            Console.Write("Invalid input. Please enter 1, 2, 3, or 4: ");
         }
 
         return difficulty; 
