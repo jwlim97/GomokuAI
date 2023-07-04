@@ -1,4 +1,5 @@
-﻿using GomokuAI.Engine;
+﻿using System.Diagnostics;
+using GomokuAI.Engine;
 using GomokuAI.Interfaces;
 
 namespace GomokuAI.Players;
@@ -25,8 +26,9 @@ public class AIPlayerMedium : BaseAIPlayer
     public override (int row, int column) GetMove(Gomoku gomoku)
     {
         _gomoku = gomoku;
-        UpdateActivePoints();
         
+        _activePoints = GetNearbyEmptyPoints(SearchDistance).ToList();
+
         if (_activePoints.Count == 0)
         {
             return (Board.Size / 2, Board.Size / 2);
@@ -42,23 +44,34 @@ public class AIPlayerMedium : BaseAIPlayer
         var bestScore = Min;
         var bestRow = -1;
         var bestColumn = -1;
+        
+        _activePoints = MoveOrder(_activePoints);
 
-        _activePoints = OrderMoves(_activePoints);
-
-        foreach (var (newRow, newColumn) in _activePoints)
+        for (var depth = 1; depth <= MaxDepth; depth++)
         {
-            if (_board.GetPosition(newRow, newColumn) != 0) continue;
+            var watch = Stopwatch.StartNew();  // Start timing the iteration
 
-            _board.SetPosition(newRow, newColumn, _playerNumber);
+            foreach (var (newRow, newColumn) in _activePoints)
+            {
+                if (_board.GetPosition(newRow, newColumn) != 0) continue;
 
-            var moveValue = Minimax(MaxDepth, newRow, newColumn, false, Min, Max);
+                _board.SetPosition(newRow, newColumn, _playerNumber);
 
-            _board.SetPosition(newRow, newColumn, 0);
+                var moveValue = MinMax(depth, newRow, newColumn, false, Min, Max);
 
-            if (moveValue <= bestScore) continue;
-            bestRow = newRow;
-            bestColumn = newColumn;
-            bestScore = moveValue;
+                _board.SetPosition(newRow, newColumn, 0);
+
+                if (moveValue <= bestScore) continue;
+                bestRow = newRow;
+                bestColumn = newColumn;
+                bestScore = moveValue;
+            }
+            
+            watch.Stop();  // Stop timing the iteration
+
+            var elapsedMs = watch.ElapsedMilliseconds;  // Get the elapsed time in milliseconds
+
+            Console.WriteLine($"Depth {depth} completed in {elapsedMs} ms");  // Print the elapsed time
         }
 
         if (bestRow == -1 || bestColumn == -1)
@@ -67,7 +80,7 @@ public class AIPlayerMedium : BaseAIPlayer
         return (bestRow, bestColumn);
     }
 
-    private int Minimax(int depth, int row, int column, bool maximizingPlayer, int alpha, int beta)
+    private int MinMax(int depth, int row, int column, bool maximizingPlayer, int alpha, int beta)
     {
         if (depth == 0 || _gomoku.IsGameOver(row, column))
         {
@@ -86,7 +99,7 @@ public class AIPlayerMedium : BaseAIPlayer
                     
                     _board.SetPosition(newRow, newColumn, _playerNumber);
                     
-                    best = Math.Max(best, Minimax(depth - 1, newRow, newColumn, false, alpha, beta));
+                    best = Math.Max(best, MinMax(depth - 1, newRow, newColumn, false, alpha, beta));
                     
                     _board.SetPosition(newRow, newColumn, 0);
                     
@@ -111,7 +124,7 @@ public class AIPlayerMedium : BaseAIPlayer
                     
                     _board.SetPosition(newRow, newColumn, 3 - _playerNumber); 
                     
-                    best = Math.Min(best, Minimax(depth - 1, newRow, newColumn, true, alpha, beta));
+                    best = Math.Min(best, MinMax(depth - 1, newRow, newColumn, true, alpha, beta));
                     
                     _board.SetPosition(newRow, newColumn, 0);
                     
@@ -193,33 +206,7 @@ public class AIPlayerMedium : BaseAIPlayer
         
         return (0, 0);
     }
-    
-    private void UpdateActivePoints()
-    {
-        _activePoints.Clear();
-        for (var row = 1; row <= Board.Size; row++)
-        {
-            for (var column = 1; column <= Board.Size; column++)
-            {
-                if (_board.GetPosition(row, column) == 0) continue;
 
-                for (var rowDistance = -SearchDistance; rowDistance <= SearchDistance; rowDistance++)
-                {
-                    for (var columnDistance = -SearchDistance; columnDistance <= SearchDistance; columnDistance++)
-                    {
-                        var newRow = row + rowDistance;
-                        var newColumn = column + columnDistance;
-                        
-                        if (newRow >= 1 && newRow <= Board.Size && newColumn >= 1 && newColumn <= Board.Size && _board.GetPosition(newRow, newColumn) == 0)
-                        {
-                            _activePoints.Add((newRow, newColumn));
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
     // Using Euclidean distance to help calculate which moves should be done
     private static double DistanceToCenter((int row, int column) move)
     {
@@ -227,8 +214,34 @@ public class AIPlayerMedium : BaseAIPlayer
         return Math.Sqrt(Math.Pow(move.row - center, 2) + Math.Pow(move.column - center, 2));
     }
 
-    private static List<(int row, int column)> OrderMoves(IEnumerable<(int row, int column)> moves)
+    private static List<(int row, int column)> MoveOrder(IEnumerable<(int row, int column)> moves)
     {
         return moves.OrderBy(DistanceToCenter).ToList();
+    }
+    
+    private IEnumerable<(int, int)> GetNearbyEmptyPoints(int searchDistance)
+    {
+        var nearbyEmptyPoints = new HashSet<(int, int)>();
+
+        for (var row = 1; row <= Board.Size; row++)
+        {
+            for (var column = 1; column <= Board.Size; column++)
+            {
+                if (_board.GetPosition(row, column) == 0) continue; 
+
+                for (var x = Math.Max(1, row - searchDistance); x <= Math.Min(Board.Size, row + searchDistance); x++)
+                {
+                    for (var y = Math.Max(1, column - searchDistance); y <= Math.Min(Board.Size, column + searchDistance); y++)
+                    {
+                        if (_board.GetPosition(x, y) == 0) 
+                        {
+                            nearbyEmptyPoints.Add((x, y));
+                        }
+                    }
+                }
+            }
+        }
+
+        return nearbyEmptyPoints;
     }
 }
