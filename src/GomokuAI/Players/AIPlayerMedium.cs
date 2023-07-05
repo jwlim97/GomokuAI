@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using GomokuAI.Engine;
+﻿using GomokuAI.Engine;
 using GomokuAI.Interfaces;
 
 namespace GomokuAI.Players;
@@ -49,8 +48,6 @@ public class AIPlayerMedium : BaseAIPlayer
 
         for (var depth = 1; depth <= MaxDepth; depth++)
         {
-            var watch = Stopwatch.StartNew();  // Start timing the iteration
-
             foreach (var (newRow, newColumn) in _activePoints)
             {
                 if (_board.GetPosition(newRow, newColumn) != 0) continue;
@@ -66,12 +63,6 @@ public class AIPlayerMedium : BaseAIPlayer
                 bestColumn = newColumn;
                 bestScore = moveValue;
             }
-            
-            watch.Stop();  // Stop timing the iteration
-
-            var elapsedMs = watch.ElapsedMilliseconds;  // Get the elapsed time in milliseconds
-
-            Console.WriteLine($"Depth {depth} completed in {elapsedMs} ms");  // Print the elapsed time
         }
 
         if (bestRow == -1 || bestColumn == -1)
