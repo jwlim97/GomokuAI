@@ -26,7 +26,7 @@ public class AIPlayerHard : BaseAIPlayer
     public override (int row, int column) GetMove(Gomoku gomoku)
     {
         _gomoku = gomoku;
-    
+
         _activePoints = GetNearbyEmptyPoints(SearchDistance).ToList();
 
         if (_activePoints.Count == 0)
@@ -44,38 +44,48 @@ public class AIPlayerHard : BaseAIPlayer
         var bestScore = Min;
         var bestRow = -1;
         var bestColumn = -1;
-        var watch = Stopwatch.StartNew();  
-    
+        var watch = Stopwatch.StartNew();
+
         _activePoints = MoveOrder(_activePoints);
 
-        for (var depth = 1; depth <= MaxDepth; depth++)
+        var depth = 1;
+        
+        try
         {
-            foreach (var (newRow, newColumn) in _activePoints)
+            while (depth <= MaxDepth)
             {
-                if (_board.GetPosition(newRow, newColumn) != 0) continue;
+                foreach (var (newRow, newColumn) in _activePoints)
+                {
+                    if (_board.GetPosition(newRow, newColumn) != 0) continue;
 
-                _board.SetPosition(newRow, newColumn, _playerNumber);
+                    _board.SetPosition(newRow, newColumn, _playerNumber);
 
-                var moveValue = MinMax(depth, newRow, newColumn, false, Min, Max);
+                    var moveValue = MinMax(depth, newRow, newColumn, false, Min, Max);
 
-                _board.SetPosition(newRow, newColumn, 0);
+                    _board.SetPosition(newRow, newColumn, 0);
 
-                if (moveValue <= bestScore) continue;
-                bestRow = newRow;
-                bestColumn = newColumn;
-                bestScore = moveValue;
+                    if (moveValue <= bestScore) continue;
+                    
+                    bestRow = newRow;
+                    bestColumn = newColumn;
+                    bestScore = moveValue;
+                }
+
+                var elapsedMs = watch.ElapsedMilliseconds;
+
+                if (elapsedMs > 15000)
+                {
+                    break;
+                }
+
+                depth++;
             }
-
-            var elapsedMs = watch.ElapsedMilliseconds;
-
-            if (elapsedMs > 15000) 
-            {
-                break;
-            }
-
-            Console.WriteLine($"Depth {depth} completed in {elapsedMs} ms"); 
         }
-    
+        catch (Exception e)
+        {
+            Console.WriteLine($"An error occurred during the search: {e.Message}");
+        }
+
         watch.Stop();
 
         if (bestRow == -1 || bestColumn == -1)
