@@ -26,7 +26,7 @@ public class AIPlayerHard : BaseAIPlayer
     public override (int row, int column) GetMove(Gomoku gomoku)
     {
         _gomoku = gomoku;
-        
+    
         _activePoints = GetNearbyEmptyPoints(SearchDistance).ToList();
 
         if (_activePoints.Count == 0)
@@ -44,13 +44,12 @@ public class AIPlayerHard : BaseAIPlayer
         var bestScore = Min;
         var bestRow = -1;
         var bestColumn = -1;
-        
+        var watch = Stopwatch.StartNew();  
+    
         _activePoints = MoveOrder(_activePoints);
 
         for (var depth = 1; depth <= MaxDepth; depth++)
         {
-            var watch = Stopwatch.StartNew();  // Start timing the iteration
-            
             foreach (var (newRow, newColumn) in _activePoints)
             {
                 if (_board.GetPosition(newRow, newColumn) != 0) continue;
@@ -66,19 +65,25 @@ public class AIPlayerHard : BaseAIPlayer
                 bestColumn = newColumn;
                 bestScore = moveValue;
             }
-            
-            watch.Stop();  // Stop timing the iteration
 
-            var elapsedMs = watch.ElapsedMilliseconds;  // Get the elapsed time in milliseconds
+            var elapsedMs = watch.ElapsedMilliseconds;
 
-            Console.WriteLine($"Depth {depth} completed in {elapsedMs} ms");  // Print the elapsed time
+            if (elapsedMs > 15000) 
+            {
+                break;
+            }
+
+            Console.WriteLine($"Depth {depth} completed in {elapsedMs} ms"); 
         }
-        
+    
+        watch.Stop();
+
         if (bestRow == -1 || bestColumn == -1)
             throw new Exception("No valid moves found!");
 
         return (bestRow, bestColumn);
     }
+
 
     private int MinMax(int depth, int row, int column, bool maximizingPlayer, int alpha, int beta)
     {
@@ -229,10 +234,18 @@ public class AIPlayerHard : BaseAIPlayer
         return Math.Sqrt(Math.Pow(move.row - center, 2) + Math.Pow(move.column - center, 2));
     }
 
-    private static List<(int row, int column)> MoveOrder(IEnumerable<(int row, int column)> moves)
+    private List<(int row, int column)> MoveOrder(IEnumerable<(int row, int column)> moves)
     {
-        return moves.OrderBy(DistanceToCenter).ToList();
+        return moves.OrderBy(move => 
+        {
+            _board.SetPosition(move.row, move.column, _playerNumber);
+            var score = EvaluateBoard();
+            _board.SetPosition(move.row, move.column, 0); 
+            var distance = DistanceToCenter(move);
+            return score - distance; 
+        }).ToList();
     }
+
     
     private int CheckSequence(int row, int column, int rowDirection, int columnDirection)
     {
