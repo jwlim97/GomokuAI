@@ -15,8 +15,7 @@ public class PlayerFactory
             3 => new AIPlayerEasy(playerNumber, board),
             4 => new AIPlayerMedium(playerNumber, board), 
             5 => new AIPlayerHard(playerNumber, board),
-            // TODO: Place holder for monte carlo
-            // 6 => new AIPlayerVeryHard(playerNumber, board),
+            6 => new AIPlayerVeryHard(playerNumber, board),
             _ => throw new Exception($"Wrong player type: {playerType}")
         };
     }
