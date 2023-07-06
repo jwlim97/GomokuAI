@@ -1,6 +1,5 @@
 ﻿using GomokuAI.Factories;
 using GomokuAI.Interfaces;
-using GomokuAI.Players;
 
 namespace GomokuAI.Engine;
 
@@ -32,13 +31,13 @@ public class Gomoku
             int row, column;
             if (currentPlayer is BaseAIPlayer)
             {
-                (row, column) = currentPlayer.GetMove();
+                (row, column) = currentPlayer.GetMove(this);
                 currentPlayer.PrintMove(row, column);
             }
             else
             {
                 Console.Write($"Player {_currentPlayer}, where would you like to put your piece? (row, column): ");
-                (row, column) = currentPlayer.GetMove();
+                (row, column) = currentPlayer.GetMove(this);
             }
         
             SetMove(row, column);
@@ -49,8 +48,6 @@ public class Gomoku
             Console.WriteLine($"Player {_currentPlayer} wins!");
         }
     }
-
-
 
     private IPlayer GetCurrentPlayer()
     {
@@ -77,7 +74,7 @@ public class Gomoku
         const int winCount = 5;
         var count = 0;
 
-        for (var i = -winCount + 1; i < winCount; i++)
+        for (var i = -4; i <= 4; i++) 
         {
             var potentialRow = row + i * direction.rowDirection;
             var potentialColumn = column + i * direction.columnDirection;
@@ -105,8 +102,8 @@ public class Gomoku
 
         return false;
     }
-    
-    private bool IsGameOver(int row, int column)
+
+    public bool IsGameOver(int row, int column)
     {
         var directions = new (int rowDirection, int columnDirection)[]
         {
