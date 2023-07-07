@@ -1,9 +1,21 @@
-﻿namespace GomokuAI.Engine;
+﻿using System;
+
+namespace GomokuAI.Engine;
 
 public class Configuration
 {
     public (int, int) GetPlayerTypes()
     {
+        Console.Write("   ('-.         .-') _               ('-.                       ('-.                 ('-.   \n");
+        Console.Write("  ( OO ).-.    ( OO ) )            _(  OO)                    _(  OO)              _(  OO)  \n");
+        Console.Write("  / . --. /,--./ ,--,'  ,----.    (,------.,--.              (,------. ,--.   ,--.(,------. \n");
+        Console.Write("  | \\-.  \\ |   \\ |  |\\ '  .-./-')  |  .---'|  |.-')    .-')   |  .---'  \\  `.'  /  |  .---' \n");
+        Console.Write(".-'-'  |  ||    \\|  | )|  |_( O- ) |  |    |  | OO ) _(  OO)  |  |    .-')     /   |  |     \n");
+        Console.Write(" \\| |_.'  ||  .     |/ |  | .--, \\(|  '--. |  |`-' |(,------.(|  '--.(OO  \\   /   (|  '--.  \n");
+        Console.Write("  |  .-.  ||  |\\    | (|  | '. (_/ |  .--'(|  '---.' '------' |  .--' |   /  /\\_   |  .--'  \n");
+        Console.Write("  |  | |  ||  | \\   |  |  '--'  |  |  `---.|      |           |  `---.`-./  /.__)  |  `---. \n");
+        Console.Write("  `--' `--'`--'  `--'   `------'   `------'`------'           `------'  `--'       `------' \n");
+
         Console.Write("Choose between PvsP (1), PvsAI (2), or AIvsAI (3): ");
 
         int gameMode;
@@ -43,11 +55,12 @@ public class Configuration
 
     private int GetAIDifficulty()
     {
-        Console.Write("Choose difficulty level for AI: Very Easy (1), Easy (2), Medium (3), Hard (4): ");
+
+        Console.Write("Choose difficulty level for AI: Very Easy (1), Easy (2), Medium (3), Hard (4), Very Hard(5): ");
         int difficulty;
-        while (!int.TryParse(Console.ReadLine(), out difficulty) || difficulty < 1 || difficulty > 4)
+        while (!int.TryParse(Console.ReadLine(), out difficulty) || difficulty < 1 || difficulty > 5)
         {
-            Console.Write("Invalid input. Please enter 1, 2, 3, or 4: ");
+            Console.Write("Invalid input. Please enter 1, 2, 3, 4 or 5: ");
         }
 
         return difficulty; 
