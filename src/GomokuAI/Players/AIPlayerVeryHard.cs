@@ -9,6 +9,7 @@ using GomokuAI.Interfaces;
 
 namespace GomokuAI.Players
 {
+    //Inherits from BaseAIPlayer
     public class AIPlayerVeryHard : BaseAIPlayer
     {
         private const int NumberOfSimulations = 100000;
@@ -19,13 +20,14 @@ namespace GomokuAI.Players
         private Board _board;
         private Gomoku _gomoku;
 
+        //Constructor with the playernumber and the board
         public AIPlayerVeryHard(int playerNumber, Board board) : base(playerNumber, board)
         {
             this._playerNumber = playerNumber;
             this._board = board;
         }
 
-
+        //Determines the next move of the AI using the MCTS algorithm
         public override (int row, int column) GetMove(Gomoku gomoku)
         {
             var availableMoves = GetAvailableMoves();
@@ -162,7 +164,7 @@ namespace GomokuAI.Players
 
 
 
-
+        //Checks for potential winning rows of the 3 directions: vertical, horizontal and diagonal
         private bool CheckDirection(int row, int column, (int rowDirection, int columnDirection) direction, int playerNumber, int rowLength)
         {
             int count = 1;
@@ -248,7 +250,7 @@ namespace GomokuAI.Players
         }
 
 
-
+        //Counts the number of potential winning rows of the player
         private int CountPotentialWinningRows(int playerNumber)
         {
             int potentialWinningRows = 0;
@@ -270,6 +272,7 @@ namespace GomokuAI.Players
             return potentialWinningRows;
         }
 
+        //Booelan value that checks if the player has potential winning row.
         private bool HasPotentialWinningRow(int row, int column, int playerNumber, int rowLength)
         {
             // Check for potential winning rows of different lengths
@@ -303,6 +306,7 @@ namespace GomokuAI.Players
             return false;
         }
 
+        //Counts the number of threats, which in our case, row of 4.
         private int CountThreats(int playerNumber)
         {
             int threats = 0;
@@ -321,6 +325,7 @@ namespace GomokuAI.Players
             return threats;
         }
 
+        //Counts the number of threats in different directions.
         private int CountThreatsAtPosition(int row, int column, int playerNumber)
         {
             int threats = 0;
@@ -342,6 +347,7 @@ namespace GomokuAI.Players
             return threats;
         }
 
+        //Counts the number of threats in different directions.
         private int CountThreatsInDirection(int row, int column, (int rowDirection, int columnDirection) direction, int playerNumber)
         {
             const int threatLength = 4;
@@ -407,7 +413,7 @@ namespace GomokuAI.Players
             return threats;
         }
 
-
+        //Determines the priority score for blocking moves based on the game state and the number of potential winning rows for the player and the opponent
         private int GetBlockingPriority()
         {   //Using the Well known Gomoku Strategies
             const int maxPriorityScore = 100;
@@ -435,7 +441,7 @@ namespace GomokuAI.Players
         }
 
 
-
+        //Retrieves a list of available moves on the game by checking the board status
         private List<(int row, int column)> GetAvailableMoves()
         {
             // List of available moves
