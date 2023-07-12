@@ -5,6 +5,9 @@ public class Board
     private const int BoardSize = 15;
     private readonly int[,] _positions;
 
+    /// <summary>
+    /// Creates the board based on the BoardSize
+    /// </summary>
     public Board()
     {
         _positions = new int[BoardSize, BoardSize];
@@ -12,16 +15,31 @@ public class Board
 
     public static int Size => BoardSize;
 
+    /// <summary>
+    /// Gets the value at the specified position on board.
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="column"></param>
+    /// <returns>Position fixed to board with 0 index</returns>
     public int GetPosition(int row, int column)
     {
         return _positions[row - 1, column - 1];
     }
 
+    /// <summary>
+    /// Sets the value at the specified position on the board.
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="column"></param>
+    /// <param name="value"></param>
     public void SetPosition(int row, int column, int value)
     {
         _positions[row - 1, column - 1] = value;
     }
 
+    /// <summary>
+    /// Prints the current state of the board.
+    /// </summary>
     public void PrintBoard()
     {
         // This line ensures that the characters are properly printed. Without this it will print '?'

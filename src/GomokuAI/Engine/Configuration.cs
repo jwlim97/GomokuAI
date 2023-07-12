@@ -4,6 +4,12 @@ namespace GomokuAI.Engine;
 
 public class Configuration
 {
+    /// <summary>
+    /// Gets user input to determine if it should be PvsP, PvsAI, or AIvsAI
+    /// Gets user input to determine the difficulty of the AI if AI is chosen
+    /// </summary>
+    /// <returns>PlayerTypes to be used by Gomoku constructor</returns>
+    /// <exception cref="ArgumentException">For error validation.</exception>
     public (int, int) GetPlayerTypes()
     {
         Console.Write("   ('-.         .-') _               ('-.                       ('-.                 ('-.   \n");
@@ -53,6 +59,10 @@ public class Configuration
         return (player1Type, player2Type);
     }
 
+    /// <summary>
+    /// Gets the difficulty level of the AI to be used in the playerType function
+    /// </summary>
+    /// <returns>Difficulty level</returns>
     private int GetAIDifficulty()
     {
 

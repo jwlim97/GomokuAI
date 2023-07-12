@@ -15,6 +15,11 @@ public class AIPlayerMedium : BaseAIPlayer
     private Gomoku _gomoku;
     private List<(int row, int column)> _activePoints;
 
+    /// <summary>
+    /// AIPlayerMedium constructor with active points
+    /// </summary>
+    /// <param name="playerNumber"></param>
+    /// <param name="board"></param>
     public AIPlayerMedium(int playerNumber, Board board) : base(playerNumber, board)
     {
         this._playerNumber = playerNumber;
@@ -22,6 +27,12 @@ public class AIPlayerMedium : BaseAIPlayer
         this._activePoints = new List<(int row, int column)>();
     }
 
+    /// <summary>
+    /// Medium AI implementation of GetMove
+    /// </summary>
+    /// <param name="gomoku"></param>
+    /// <returns>AI move</returns>
+    /// <exception cref="Exception"></exception>
     public override (int row, int column) GetMove(Gomoku gomoku)
     {
         _gomoku = gomoku;
@@ -71,6 +82,16 @@ public class AIPlayerMedium : BaseAIPlayer
         return (bestRow, bestColumn);
     }
 
+    /// <summary>
+    /// AIPlayerMedium implementation of MinMax
+    /// </summary>
+    /// <param name="depth"></param>
+    /// <param name="row"></param>
+    /// <param name="column"></param>
+    /// <param name="maximizingPlayer"></param>
+    /// <param name="alpha"></param>
+    /// <param name="beta"></param>
+    /// <returns></returns>
     private int MinMax(int depth, int row, int column, bool maximizingPlayer, int alpha, int beta)
     {
         if (depth == 0 || _gomoku.IsGameOver(row, column))
@@ -129,7 +150,11 @@ public class AIPlayerMedium : BaseAIPlayer
             return best;
         }
     }
-
+    
+    /// <summary>
+    /// Medium AI implmentation of Evaluate Board
+    /// </summary>
+    /// <returns></returns>
     private int EvaluateBoard()
     {
         var score = 0;
@@ -147,6 +172,10 @@ public class AIPlayerMedium : BaseAIPlayer
         return score;
     }
 
+    /// <summary>
+    /// Checks the opponents winning move based on 9x9 direction
+    /// </summary>
+    /// <returns>The move that would help the opponent win</returns>
     private (int row, int column) CheckOpponentWinningMove()
     {
         var opponentNumber = 3 - _playerNumber;
@@ -198,6 +227,11 @@ public class AIPlayerMedium : BaseAIPlayer
         return (0, 0);
     }
 
+    /// <summary>
+    /// Calculates distance from center using Euclidian formula
+    /// </summary>
+    /// <param name="move"></param>
+    /// <returns>Distance from center</returns>
     // Using Euclidean distance to help calculate which moves should be done
     private static double DistanceToCenter((int row, int column) move)
     {
@@ -205,11 +239,21 @@ public class AIPlayerMedium : BaseAIPlayer
         return Math.Sqrt(Math.Pow(move.row - center, 2) + Math.Pow(move.column - center, 2));
     }
 
+    /// <summary>
+    ///  Stores move order in a list
+    /// </summary>
+    /// <param name="moves"></param>
+    /// <returns>Said stored move order</returns>
     private static List<(int row, int column)> MoveOrder(IEnumerable<(int row, int column)> moves)
     {
         return moves.OrderBy(DistanceToCenter).ToList();
     }
     
+    /// <summary>
+    /// Gets all the nearby empty points
+    /// </summary>
+    /// <param name="searchDistance"></param>
+    /// <returns>Nearby empty points</returns>
     private IEnumerable<(int, int)> GetNearbyEmptyPoints(int searchDistance)
     {
         var nearbyEmptyPoints = new HashSet<(int, int)>();

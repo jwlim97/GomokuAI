@@ -16,6 +16,11 @@ public class AIPlayerHard : BaseAIPlayer
     private Gomoku _gomoku;
     private List<(int row, int column)> _activePoints;
 
+    /// <summary>
+    /// Implementation of Min-Max Alpha Beta pruning with active points added
+    /// </summary>
+    /// <param name="playerNumber"></param>
+    /// <param name="board"></param>
     public AIPlayerHard(int playerNumber, Board board) : base(playerNumber, board)
     {
         this._playerNumber = playerNumber;
@@ -23,6 +28,13 @@ public class AIPlayerHard : BaseAIPlayer
         this._activePoints = new List<(int row, int column)>();
     }
 
+    /// <summary>
+    /// Implementation of GetMove for AIPlayerHard
+    /// Utilizes MaxDepth to speed up compilation time
+    /// </summary>
+    /// <param name="gomoku"></param>
+    /// <returns>The AI's move</returns>
+    /// <exception cref="Exception"></exception>
     public override (int row, int column) GetMove(Gomoku gomoku)
     {
         _gomoku = gomoku;
@@ -95,6 +107,16 @@ public class AIPlayerHard : BaseAIPlayer
     }
 
 
+    /// <summary>
+    /// Implementation of Min-Max Algorithm 
+    /// </summary>
+    /// <param name="depth"></param>
+    /// <param name="row"></param>
+    /// <param name="column"></param>
+    /// <param name="maximizingPlayer"></param>
+    /// <param name="alpha"></param>
+    /// <param name="beta"></param>
+    /// <returns>Best score</returns>
     private int MinMax(int depth, int row, int column, bool maximizingPlayer, int alpha, int beta)
     {
         if (depth == 0 || _gomoku.IsGameOver(row, column))
@@ -154,6 +176,10 @@ public class AIPlayerHard : BaseAIPlayer
         }
     }
 
+    /// <summary>
+    /// Implementation of EvaluateBoard for hard AI using CheckSequence
+    /// </summary>
+    /// <returns>The score based on AI's winning move and opponents winning move scores</returns>
     private int EvaluateBoard()
     {
         var score = 0;
@@ -186,6 +212,10 @@ public class AIPlayerHard : BaseAIPlayer
         return score;
     }
 
+    /// <summary>
+    /// Checks the opponents winning move based on the direction
+    /// </summary>
+    /// <returns>Opponents potential winning move</returns>
     private (int row, int column) CheckOpponentWinningMove()
     {
         var opponentNumber = 3 - _playerNumber;
@@ -237,6 +267,11 @@ public class AIPlayerHard : BaseAIPlayer
         return (0, 0);
     }
 
+    /// <summary>
+    /// Calculates distance from center using Euclidian formula
+    /// </summary>
+    /// <param name="move"></param>
+    /// <returns>Distance from center</returns>
     // Using Euclidean distance to help calculate which moves should be done
     private static double DistanceToCenter((int row, int column) move)
     {
@@ -256,7 +291,14 @@ public class AIPlayerHard : BaseAIPlayer
         }).ToList();
     }
 
-    
+    /// <summary>
+    /// Checks how close player is to winning
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="column"></param>
+    /// <param name="rowDirection"></param>
+    /// <param name="columnDirection"></param>
+    /// <returns>Returns value to help calculate score, basically true or false</returns>
     private int CheckSequence(int row, int column, int rowDirection, int columnDirection)
     {
         var playerNumber = _board.GetPosition(row, column);
@@ -275,6 +317,11 @@ public class AIPlayerHard : BaseAIPlayer
         return 1;
     }
     
+    /// <summary>
+    /// Gets the nearby empty points to prevent recalculation
+    /// </summary>
+    /// <param name="searchDistance"></param>
+    /// <returns>Returns all nearby empty points</returns>
     private IEnumerable<(int, int)> GetNearbyEmptyPoints(int searchDistance)
     {
         var nearbyEmptyPoints = new HashSet<(int, int)>();

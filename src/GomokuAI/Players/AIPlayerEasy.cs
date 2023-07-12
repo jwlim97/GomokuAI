@@ -136,6 +136,10 @@ public class AIPlayerEasy : BaseAIPlayer
         return (bestRow, bestColumn);
     }
     
+    /// <summary>
+    /// Creates a score based on Min-Max Alpha Beta pruning 
+    /// </summary>
+    /// <returns>Score to push AI to a certain direction</returns>
     private int EvaluateBoard()
     {
         var score = 0;
